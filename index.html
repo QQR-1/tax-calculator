@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年个人所得税计算器（含补扣功能）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1e88e5;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+            outline: none;
+        }
+        
+        .deduction-section {
+            margin-top: 20px;
+        }
+        
+        .deduction-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .deduction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        @media (max-width: 480px) {
+            .deduction-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .deduction-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #1e88e5;
+        }
+        
+        .deduction-label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+        
+        .deduction-input {
+            width: 100%;
+        }
+        
+        .btn-calculate {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        
+        .btn-calculate:hover {
+            background: linear-gradient(135deg, #1976d2, #083b8a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-section {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .tax-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e53935;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .tax-refund {
+            color: #4caf50;
+        }
+        
+        .tax-table-container {
+            margin-top: 20px;
+        }
+        
+        .tax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .tax-table th, .tax-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .tax-table th {
+            background-color: #1e88e5;
+            color: white;
+        }
+        
+        .tax-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .explanation {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+        
+        .highlight {
+            color: #e53935;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .monthly-results {
+            grid-column: 1 / -1;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .results-table th, .results-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .results-table th {
+            background-color: #1e88e5;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .results-table tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .note {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+        }
+        
+        .deduction-amount {
+            color: #1e88e5;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+        
+        .cumulative-info {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+        }
+        
+        .back-deduction-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .back-deduction-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #1565c0;
+        }
+        
+        .back-deduction-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .back-deduction-label {
+            font-weight: 500;
+        }
+        
+        .back-deduction-value {
+            font-weight: 600;
+            color: #e53935;
+        }
+        
+        .back-deduction-refund {
+            color: #4caf50;
+        }
+        
+        .input-hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .back-deduction-checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
+        .back-deduction-checkbox input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .deduction-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .deduction-item-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .back-deduction-details {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .variable-deduction-section {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff3e0;
+            border-radius: 4px;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .variable-deduction-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e65100;
+            font-size: 0.9rem;
+        }
+        
+        .variable-deduction-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .month-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .month-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .month-option input {
+            width: auto;
+            margin-right: 4px;
+        }
+        
+        .month-option label {
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+        
+        .insurance-section {
+            background-color: #f0f4ff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .insurance-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #1565c0;
+        }
+        
+        .insurance-details {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .insurance-breakdown {
+            margin-top: 10px;
+        }
+        
+        .insurance-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .same-base-checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .same-base-checkbox input {
+            width: auto;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>2025年个人所得税计算器（含补扣功能）</h1>
+            <p class="subtitle">完整模拟累计预扣法和专项附加扣除补扣情况</p>
+        </header>
+        
+        <div class="note">
+            <strong>重要说明：</strong> 本计算器采用累计预扣法，这是中国个人所得税实际计算方式。每个月的应纳税额是基于当年累计收入计算的，因此前期月份适用较低税率。
+        </div>
+        
+        <div class="cumulative-info">
+            <strong>专项附加扣除申报说明：</strong> 如果您在年中申报专项附加扣除，计算器会自动重新计算累计应纳税额。如果重新计算后发现累计应纳税额小于已缴税额，当月可能不需要缴税，甚至可能有退税。
+        </div>
+        
+        <div class="calculator">
+            <div class="card">
+                <h2 class="card-title">月度收入与扣除信息</h2>
+                
+                <div class="input-group">
+                    <label for="month">月份</label>
+                    <select id="month">
+                        <option value="1">1月</option>
+                        <option value="2">2月</option>
+                        <option value="3">3月</option>
+                        <option value="4">4月</option>
+                        <option value="5">5月</option>
+                        <option value="6">6月</option>
+                        <option value="7">7月</option>
+                        <option value="8">8月</option>
+                        <option value="9">9月</option>
+                        <option value="10" selected>10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="salary">月收入（元）</label>
+                    <input type="number" id="salary" placeholder="请输入月收入" min="0" step="100">
+                </div>
+                
+                <div class="insurance-section">
+                    <h3 class="insurance-title">五险一金计算（浙江省标准）</h3>
+                    
+                    <div class="input-group">
+                        <label for="socialInsuranceBase">社保缴纳基数（元）</label>
+                        <input type="number" id="socialInsuranceBase" placeholder="请输入社保缴纳基数" min="0" step="100">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="socialInsuranceRate">社保缴纳比例（%）</label>
+                        <input type="number" id="socialInsuranceRate" min="0" max="100" step="0.1" value="10.5" readonly>
+                        <div class="input-hint">浙江省个人社保缴纳比例：养老保险8% + 医疗保险2% + 失业保险0.5% = 10.5%</div>
+                    </div>
+                    
+                    <div class="same-base-checkbox">
+                        <input type="checkbox" id="sameBase" checked>
+                        <label for="sameBase">公积金基数与社保基数相同</label>
+                    </div>
+                    
+                    <div class="input-group" id="housingFundBaseGroup" style="display: none;">
+                        <label for="housingFundBase">公积金缴纳基数（元）</label>
+                        <input type="number" id="housingFundBase" placeholder="请输入公积金缴纳基数" min="0" step="100">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="housingFundRate">公积金缴纳比例（%）</label>
+                        <input type="number" id="housingFundRate" min="5" max="12" step="1" value="12">
+                        <div class="input-hint">浙江省公积金缴纳比例范围为5%-12%</div>
+                    </div>
+                    
+                    <div class="insurance-details">
+                        <div class="insurance-breakdown">
+                            <div class="insurance-breakdown-item">
+                                <span>社保个人缴纳金额：</span>
+                                <span id="socialInsuranceAmount">0.00 元</span>
+                            </div>
+                            <div class="insurance-breakdown-item">
+                                <span>公积金个人缴纳金额：</span>
+                                <span id="housingFundAmount">0.00 元</span>
+                            </div>
+                            <div class="insurance-breakdown-item" style="font-weight: 600;">
+                                <span>五险一金个人缴纳总额：</span>
+                                <span id="totalInsuranceAmount">0.00 元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="deduction-section">
+                    <h3 class="deduction-title">专项附加扣除 (2025年最新标准)</h3>
+                    
+                    <div class="deduction-grid">
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">子女教育</div>
+                            </div>
+                            <input type="number" class="deduction-input" id="childrenEdu" min="0" max="10" value="0" placeholder="请输入子女数量">
+                            <div class="deduction-amount">每个子女每月2000元</div>
+                            <div class="input-hint">请填写子女数量，不是金额</div>
+                            
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="childrenEduBackDeduction">
+                                <label for="childrenEduBackDeduction">从年初开始补扣</label>
+                            </div>
+                            
+                            <div class="variable-deduction-section" id="childrenEduVariableSection" style="display: none;">
+                                <div class="variable-deduction-title">子女教育补扣月份设置</div>
+                                <div class="input-hint">请选择需要补扣子女教育的月份（默认全选）</div>
+                                <div class="month-selector" id="childrenEduMonthSelector">
+                                    <!-- 月份选项将通过JavaScript动态添加 -->
+                                </div>
+                            </div>
+                            
+                            <div class="back-deduction-details" id="childrenEduBackDetails" style="display: none;">
+                                补扣金额：<span id="childrenEduBackAmount">0</span>元
+                            </div>
+                        </div>
+                        
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">3岁以下婴幼儿照护</div>
+                            </div>
+                            <input type="number" class="deduction-input" id="infantCare" min="0" max="10" value="0" placeholder="请输入婴幼儿数量">
+                            <div class="deduction-amount">每个婴幼儿每月2000元</div>
+                            <div class="input-hint">请填写婴幼儿数量，不是金额</div>
+                            
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="infantCareBackDeduction">
+                                <label for="infantCareBackDeduction">从年初开始补扣</label>
+                            </div>
+                            
+                            <div class="variable-deduction-section" id="infantCareVariableSection" style="display: none;">
+                                <div class="variable-deduction-title">婴幼儿照护补扣月份设置</div>
+                                <div class="input-hint">请选择需要补扣婴幼儿照护的月份（默认全选）</div>
+                                <div class="month-selector" id="infantCareMonthSelector">
+                                    <!-- 月份选项将通过JavaScript动态添加 -->
+                                </div>
+                            </div>
+                            
+                            <div class="back-deduction-details" id="infantCareBackDetails" style="display: none;">
+                                补扣金额：<span id="infantCareBackAmount">0</span>元
+                            </div>
+                        </div>
+                        
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">继续教育</div>
+                            </div>
+                            <select class="deduction-input" id="continuingEdu">
+                                <option value="0">无</option>
+                                <option value="400">学历教育（每月400元）</option>
+                                <option value="3600">职业资格教育（每年3600元）</option>
+                            </select>
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="continuingEduBackDeduction">
+                                <label for="continuingEduBackDeduction">从年初开始补扣</label>
+                            </div>
+                            <div class="back-deduction-details" id="continuingEduBackDetails" style="display: none;">
+                                补扣金额：<span id="continuingEduBackAmount">0</span>元
+                            </div>
+                        </div>
+                        
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">住房贷款利息</div>
+                            </div>
+                            <select class="deduction-input" id="housingLoan">
+                                <option value="0">无</option>
+                                <option value="1000">是（每月1000元）</option>
+                            </select>
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="housingLoanBackDeduction">
+                                <label for="housingLoanBackDeduction">从年初开始补扣</label>
+                            </div>
+                            <div class="back-deduction-details" id="housingLoanBackDetails" style="display: none;">
+                                补扣金额：<span id="housingLoanBackAmount">0</span>元
+                            </div>
+                        </div>
+                        
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">住房租金</div>
+                            </div>
+                            <select class="deduction-input" id="housingRent">
+                                <option value="0">无</option>
+                                <option value="800">其他城市（每月800元）</option>
+                                <option value="1100">省会/计划单列市（每月1100元）</option>
+                                <option value="1500">直辖市/大城市（每月1500元）</option>
+                            </select>
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="housingRentBackDeduction">
+                                <label for="housingRentBackDeduction">从年初开始补扣</label>
+                            </div>
+                            <div class="back-deduction-details" id="housingRentBackDetails" style="display: none;">
+                                补扣金额：<span id="housingRentBackAmount">0</span>元
+                            </div>
+                        </div>
+                        
+                        <div class="deduction-item">
+                            <div class="deduction-item-header">
+                                <div class="deduction-item-title">赡养老人</div>
+                            </div>
+                            <select class="deduction-input" id="elderSupport">
+                                <option value="0">无</option>
+                                <option value="3000">独生子女（每月3000元）</option>
+                                <option value="1500">非独生子女（每月1500元）</option>
+                            </select>
+                            <div class="back-deduction-checkbox">
+                                <input type="checkbox" id="elderSupportBackDeduction">
+                                <label for="elderSupportBackDeduction">从年初开始补扣</label>
+                            </div>
+                            <div class="back-deduction-details" id="elderSupportBackDetails" style="display: none;">
+                                补扣金额：<span id="elderSupportBackAmount">0</span>元
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group" style="margin-top: 15px;">
+                        <label for="medicalExpense">大病医疗（年度限额80000元，请填写年度累计金额）</label>
+                        <input type="number" id="medicalExpense" min="0" max="80000" value="0" placeholder="年度总额">
+                        <div class="back-deduction-checkbox">
+                            <input type="checkbox" id="medicalExpenseBackDeduction">
+                            <label for="medicalExpenseBackDeduction">从年初开始补扣</label>
+                        </div>
+                        <div class="back-deduction-details" id="medicalExpenseBackDetails" style="display: none;">
+                            补扣金额：<span id="medicalExpenseBackAmount">0</span>元
+                        </div>
+                    </div>
+                    
+                    <div class="back-deduction-section">
+                        <h3 class="back-deduction-title">专项附加扣除补扣汇总</h3>
+                        <div class="back-deduction-item">
+                            <span class="back-deduction-label">当月专项附加扣除总额：</span>
+                            <span class="back-deduction-value" id="currentMonthDeduction">0 元</span>
+                        </div>
+                        <div class="back-deduction-item">
+                            <span class="back-deduction-label">补扣总额度：</span>
+                            <span class="back-deduction-value" id="backDeductionAmount">0 元</span>
+                        </div>
+                        <div class="back-deduction-item">
+                            <span class="back-deduction-label">专项附加扣除总计：</span>
+                            <span class="back-deduction-value" id="totalDeductionPreview">0 元</span>
+                        </div>
+                        <div class="input-hint">补扣总额度 = 各项目补扣金额之和</div>
+                    </div>
+                </div>
+                
+                <button class="btn-calculate" id="calculateBtn">计算个人所得税</button>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">计算结果</h2>
+                
+                <div class="result-section">
+                    <h3 class="result-title">本月个人所得税</h3>
+                    <div class="tax-amount" id="taxAmount">0.00 元</div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">累计应纳税所得额</span>
+                        <span class="result-value" id="cumulativeTaxableIncome">0.00 元</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">适用税率</span>
+                        <span class="result-value" id="taxRate">0%</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">速算扣除数</span>
+                        <span class="result-value" id="quickDeduction">0 元</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">累计应纳税额</span>
+                        <span class="result-value" id="cumulativeTax">0.00 元</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">累计已缴税额</span>
+                        <span class="result-value" id="cumulativePaidTax">0.00 元</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">本月应纳税额</span>
+                        <span class="result-value" id="monthlyTax">0.00 元</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">专项附加扣除总额</span>
+                        <span class="result-value" id="totalDeduction">0 元</span>
+                    </div>
+                    
+                    <div class="back-deduction-item" id="backDeductionResult" style="display: none;">
+                        <span class="back-deduction-label">补扣退税金额：</span>
+                        <span class="back-deduction-value back-deduction-refund" id="backDeductionRefund">0 元</span>
+                    </div>
+                </div>
+                
+                <div class="tax-table-container">
+                    <h3 class="card-title">2025年个人所得税税率表（居民个人综合所得适用）</h3>
+                    <table class="tax-table">
+                        <thead>
+                            <tr>
+                                <th>级数</th>
+                                <th>累计应纳税所得额</th>
+                                <th>税率(%)</th>
+                                <th>速算扣除数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>不超过36,000元</td>
+                                <td>3</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>超过36,000元至144,000元</td>
+                                <td>10</td>
+                                <td>2,520</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>超过144,000元至300,000元</td>
+                                <td>20</td>
+                                <td>16,920</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>超过300,000元至420,000元</td>
+                                <td>25</td>
+                                <td>31,920</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>超过420,000元至660,000元</td>
+                                <td>30</td>
+                                <td>52,920</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>超过660,000元至960,000元</td>
+                                <td>35</td>
+                                <td>85,920</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>超过960,000元</td>
+                                <td>45</td>
+                                <td>181,920</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="explanation">
+                    <p><span class="highlight">累计预扣法计算公式：</span></p>
+                    <p>累计预扣预缴应纳税所得额 = 累计收入 - 累计免税收入 - 累计减除费用 - 累计专项扣除 - 累计专项附加扣除 - 累计其他扣除</p>
+                    <p>本期应预扣预缴税额 = (累计预扣预缴应纳税所得额 × 预扣率 - 速算扣除数) - 累计减免税额 - 累计已预扣预缴税额</p>
+                    <p><span class="highlight">注意：</span> 住房贷款利息和住房租金扣除不能同时享受，本计算器不会自动处理此冲突，请根据实际情况选择。</p>
+                </div>
+            </div>
+            
+            <div class="card monthly-results">
+                <h2 class="card-title">月度计算结果（累计预扣法）</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>月份</th>
+                            <th>收入</th>
+                            <th>五险一金</th>
+                            <th>专项附加扣除</th>
+                            <th>累计应纳税所得额</th>
+                            <th>税率</th>
+                            <th>速算扣除数</th>
+                            <th>累计应纳税额</th>
+                            <th>累计已缴税额</th>
+                            <th>本月应纳税额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyResults">
+                        <!-- 月度结果将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 个人所得税计算器 | 数据仅供参考，实际纳税金额以税务机关核定为准</p>
+        </div>
+    </div>
+
+    <script>
+        // 存储所有月份的计算结果
+        let monthlyCalculations = [];
+        
+        // 存储子女教育和婴幼儿照护的月份选择
+        let childrenEduSelectedMonths = [];
+        let infantCareSelectedMonths = [];
+        
+        // 2025年个人所得税税率表（年度）
+        const taxRates = [
+            { min: 0, max: 36000, rate: 0.03, deduction: 0 },
+            { min: 36000, max: 144000, rate: 0.10, deduction: 2520 },
+            { min: 144000, max: 300000, rate: 0.20, deduction: 16920 },
+            { min: 300000, max: 420000, rate: 0.25, deduction: 31920 },
+            { min: 420000, max: 660000, rate: 0.30, deduction: 52920 },
+            { min: 660000, max: 960000, rate: 0.35, deduction: 85920 },
+            { min: 960000, max: Infinity, rate: 0.45, deduction: 181920 }
+        ];
+        
+        // 处理公积金基数与社保基数相同选项
+        function handleSameBaseChange() {
+            const sameBase = document.getElementById('sameBase').checked;
+            const housingFundBaseGroup = document.getElementById('housingFundBaseGroup');
+            const socialInsuranceBase = document.getElementById('socialInsuranceBase').value;
+            
+            if (sameBase) {
+                housingFundBaseGroup.style.display = 'none';
+                document.getElementById('housingFundBase').value = socialInsuranceBase;
+            } else {
+                housingFundBaseGroup.style.display = 'block';
+            }
+            
+            calculateInsuranceAmount();
+        }
+        
+        // 计算五险一金金额
+        function calculateInsuranceAmount() {
+            const socialBase = parseFloat(document.getElementById('socialInsuranceBase').value) || 0;
+            const socialRate = 10.5; // 浙江省社保个人缴纳比例：养老保险8% + 医疗保险2% + 失业保险0.5% = 10.5%
+            
+            const sameBase = document.getElementById('sameBase').checked;
+            let housingBase;
+            
+            if (sameBase) {
+                housingBase = socialBase;
+                document.getElementById('housingFundBase').value = socialBase;
+            } else {
+                housingBase = parseFloat(document.getElementById('housingFundBase').value) || 0;
+            }
+            
+            const housingRate = parseFloat(document.getElementById('housingFundRate').value) || 0;
+            
+            const socialInsuranceAmount = socialBase * socialRate / 100;
+            const housingFundAmount = housingBase * housingRate / 100;
+            const totalInsuranceAmount = socialInsuranceAmount + housingFundAmount;
+            
+            document.getElementById('socialInsuranceAmount').textContent = socialInsuranceAmount.toFixed(2) + ' 元';
+            document.getElementById('housingFundAmount').textContent = housingFundAmount.toFixed(2) + ' 元';
+            document.getElementById('totalInsuranceAmount').textContent = totalInsuranceAmount.toFixed(2) + ' 元';
+            
+            return totalInsuranceAmount;
+        }
+        
+        // 初始化月份选择器
+        function initializeMonthSelectors() {
+            const month = parseInt(document.getElementById('month').value);
+            const childrenEduMonthSelector = document.getElementById('childrenEduMonthSelector');
+            const infantCareMonthSelector = document.getElementById('infantCareMonthSelector');
+            
+            childrenEduMonthSelector.innerHTML = '';
+            infantCareMonthSelector.innerHTML = '';
+            
+            childrenEduSelectedMonths = [];
+            infantCareSelectedMonths = [];
+            
+            for (let i = 1; i < month; i++) {
+                // 子女教育月份选择器
+                const childrenEduMonthOption = document.createElement('div');
+                childrenEduMonthOption.className = 'month-option';
+                childrenEduMonthOption.innerHTML = `
+                    <input type="checkbox" id="childrenEduMonth${i}" value="${i}" checked>
+                    <label for="childrenEduMonth${i}">${i}月</label>
+                `;
+                childrenEduMonthSelector.appendChild(childrenEduMonthOption);
+                
+                // 婴幼儿照护月份选择器
+                const infantCareMonthOption = document.createElement('div');
+                infantCareMonthOption.className = 'month-option';
+                infantCareMonthOption.innerHTML = `
+                    <input type="checkbox" id="infantCareMonth${i}" value="${i}" checked>
+                    <label for="infantCareMonth${i}">${i}月</label>
+                `;
+                infantCareMonthSelector.appendChild(infantCareMonthOption);
+                
+                childrenEduSelectedMonths.push(i);
+                infantCareSelectedMonths.push(i);
+                
+                // 添加事件监听
+                document.getElementById(`childrenEduMonth${i}`).addEventListener('change', function() {
+                    if (this.checked) {
+                        childrenEduSelectedMonths.push(parseInt(this.value));
+                    } else {
+                        const index = childrenEduSelectedMonths.indexOf(parseInt(this.value));
+                        if (index > -1) {
+                            childrenEduSelectedMonths.splice(index, 1);
+                        }
+                    }
+                    updateBackDeductionAmount();
+                });
+                
+                document.getElementById(`infantCareMonth${i}`).addEventListener('change', function() {
+                    if (this.checked) {
+                        infantCareSelectedMonths.push(parseInt(this.value));
+                    } else {
+                        const index = infantCareSelectedMonths.indexOf(parseInt(this.value));
+                        if (index > -1) {
+                            infantCareSelectedMonths.splice(index, 1);
+                        }
+                    }
+                    updateBackDeductionAmount();
+                });
+            }
+        }
+        
+        // 更新补扣总额度显示
+        function updateBackDeductionAmount() {
+            const month = parseInt(document.getElementById('month').value);
+            
+            // 计算各项目的补扣金额
+            const childrenEdu = parseInt(document.getElementById('childrenEdu').value) || 0;
+            const childrenEduBack = document.getElementById('childrenEduBackDeduction').checked;
+            const childrenEduBackAmount = childrenEduBack ? childrenEdu * 2000 * childrenEduSelectedMonths.length : 0;
+            
+            const infantCare = parseInt(document.getElementById('infantCare').value) || 0;
+            const infantCareBack = document.getElementById('infantCareBackDeduction').checked;
+            const infantCareBackAmount = infantCareBack ? infantCare * 2000 * infantCareSelectedMonths.length : 0;
+            
+            const continuingEdu = parseInt(document.getElementById('continuingEdu').value) || 0;
+            const continuingEduBack = document.getElementById('continuingEduBackDeduction').checked;
+            const monthlyContinuingEdu = continuingEdu === 3600 ? 300 : continuingEdu;
+            const continuingEduBackAmount = continuingEduBack ? monthlyContinuingEdu * (month - 1) : 0;
+            
+            const housingLoan = parseInt(document.getElementById('housingLoan').value) || 0;
+            const housingLoanBack = document.getElementById('housingLoanBackDeduction').checked;
+            const housingLoanBackAmount = housingLoanBack ? housingLoan * (month - 1) : 0;
+            
+            const housingRent = parseInt(document.getElementById('housingRent').value) || 0;
+            const housingRentBack = document.getElementById('housingRentBackDeduction').checked;
+            const housingRentBackAmount = housingRentBack ? housingRent * (month - 1) : 0;
+            
+            const elderSupport = parseInt(document.getElementById('elderSupport').value) || 0;
+            const elderSupportBack = document.getElementById('elderSupportBackDeduction').checked;
+            const elderSupportBackAmount = elderSupportBack ? elderSupport * (month - 1) : 0;
+            
+            const medicalExpense = parseInt(document.getElementById('medicalExpense').value) || 0;
+            const medicalExpenseBack = document.getElementById('medicalExpenseBackDeduction').checked;
+            const monthlyMedicalExpense = medicalExpense / 12;
+            const medicalExpenseBackAmount = medicalExpenseBack ? monthlyMedicalExpense * (month - 1) : 0;
+            
+            // 计算当月专项附加扣除总额
+            const currentMonthDeduction = 
+                childrenEdu * 2000 +
+                infantCare * 2000 +
+                monthlyContinuingEdu +
+                housingLoan +
+                housingRent +
+                elderSupport +
+                monthlyMedicalExpense;
+            
+            // 计算补扣总额
+            const backDeductionAmount = 
+                childrenEduBackAmount +
+                infantCareBackAmount +
+                continuingEduBackAmount +
+                housingLoanBackAmount +
+                housingRentBackAmount +
+                elderSupportBackAmount +
+                medicalExpenseBackAmount;
+            
+            // 更新显示
+            document.getElementById('currentMonthDeduction').textContent = currentMonthDeduction.toFixed(2) + ' 元';
+            document.getElementById('backDeductionAmount').textContent = backDeductionAmount.toFixed(2) + ' 元';
+            document.getElementById('totalDeductionPreview').textContent = (currentMonthDeduction + backDeductionAmount).toFixed(2) + ' 元';
+            
+            // 更新各项目的补扣详情
+            document.getElementById('childrenEduBackAmount').textContent = childrenEduBackAmount.toFixed(2);
+            document.getElementById('childrenEduBackDetails').style.display = childrenEduBack ? 'block' : 'none';
+            document.getElementById('childrenEduVariableSection').style.display = childrenEduBack ? 'block' : 'none';
+            
+            document.getElementById('infantCareBackAmount').textContent = infantCareBackAmount.toFixed(2);
+            document.getElementById('infantCareBackDetails').style.display = infantCareBack ? 'block' : 'none';
+            document.getElementById('infantCareVariableSection').style.display = infantCareBack ? 'block' : 'none';
+            
+            document.getElementById('continuingEduBackAmount').textContent = continuingEduBackAmount.toFixed(2);
+            document.getElementById('continuingEduBackDetails').style.display = continuingEduBack ? 'block' : 'none';
+            
+            document.getElementById('housingLoanBackAmount').textContent = housingLoanBackAmount.toFixed(2);
+            document.getElementById('housingLoanBackDetails').style.display = housingLoanBack ? 'block' : 'none';
+            
+            document.getElementById('housingRentBackAmount').textContent = housingRentBackAmount.toFixed(2);
+            document.getElementById('housingRentBackDetails').style.display = housingRentBack ? 'block' : 'none';
+            
+            document.getElementById('elderSupportBackAmount').textContent = elderSupportBackAmount.toFixed(2);
+            document.getElementById('elderSupportBackDetails').style.display = elderSupportBack ? 'block' : 'none';
+            
+            document.getElementById('medicalExpenseBackAmount').textContent = medicalExpenseBackAmount.toFixed(2);
+            document.getElementById('medicalExpenseBackDetails').style.display = medicalExpenseBack ? 'block' : 'none';
+        }
+        
+        // 监听专项附加扣除变化，更新补扣总额度
+        const deductionInputs = [
+            'housingRent', 'childrenEdu', 'infantCare', 'continuingEdu', 
+            'housingLoan', 'elderSupport', 'medicalExpense', 'month'
+        ];
+        
+        deductionInputs.forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                if (id === 'month') {
+                    initializeMonthSelectors();
+                }
+                updateBackDeductionAmount();
+            });
+        });
+        
+        // 监听补扣复选框变化
+        const backDeductionCheckboxes = [
+            'childrenEduBackDeduction', 'infantCareBackDeduction', 'continuingEduBackDeduction',
+            'housingLoanBackDeduction', 'housingRentBackDeduction', 'elderSupportBackDeduction',
+            'medicalExpenseBackDeduction'
+        ];
+        
+        backDeductionCheckboxes.forEach(id => {
+            document.getElementById(id).addEventListener('change', updateBackDeductionAmount);
+        });
+        
+        // 监听五险一金相关输入变化
+        document.getElementById('socialInsuranceBase').addEventListener('input', function() {
+            if (document.getElementById('sameBase').checked) {
+                document.getElementById('housingFundBase').value = this.value;
+            }
+            calculateInsuranceAmount();
+        });
+        
+        document.getElementById('housingFundBase').addEventListener('input', calculateInsuranceAmount);
+        document.getElementById('housingFundRate').addEventListener('input', calculateInsuranceAmount);
+        document.getElementById('sameBase').addEventListener('change', handleSameBaseChange);
+        
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            // 获取输入值
+            const month = parseInt(document.getElementById('month').value);
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            
+            // 计算五险一金金额
+            const insurance = calculateInsuranceAmount();
+            
+            // 获取专项附加扣除
+            const childrenEdu = parseInt(document.getElementById('childrenEdu').value) || 0;
+            const childrenEduBack = document.getElementById('childrenEduBackDeduction').checked;
+            
+            const infantCare = parseInt(document.getElementById('infantCare').value) || 0;
+            const infantCareBack = document.getElementById('infantCareBackDeduction').checked;
+            
+            const continuingEdu = parseInt(document.getElementById('continuingEdu').value) || 0;
+            const continuingEduBack = document.getElementById('continuingEduBackDeduction').checked;
+            
+            const housingLoan = parseInt(document.getElementById('housingLoan').value) || 0;
+            const housingLoanBack = document.getElementById('housingLoanBackDeduction').checked;
+            
+            const housingRent = parseInt(document.getElementById('housingRent').value) || 0;
+            const housingRentBack = document.getElementById('housingRentBackDeduction').checked;
+            
+            const elderSupport = parseInt(document.getElementById('elderSupport').value) || 0;
+            const elderSupportBack = document.getElementById('elderSupportBackDeduction').checked;
+            
+            const medicalExpense = parseInt(document.getElementById('medicalExpense').value) || 0;
+            const medicalExpenseBack = document.getElementById('medicalExpenseBackDeduction').checked;
+            
+            // 计算专项附加扣除总额（大病医疗按年度/12计算，职业资格教育按年/12计算）
+            const monthlyMedicalExpense = medicalExpense / 12;
+            const monthlyContinuingEdu = continuingEdu === 3600 ? 300 : continuingEdu;
+            
+            // 根据2025年最新标准计算月度专项附加扣除
+            const monthlyDeduction = 
+                childrenEdu * 2000 +      // 子女教育：每个子女2000元/月
+                infantCare * 2000 +       // 3岁以下婴幼儿照护：每个婴幼儿2000元/月
+                monthlyContinuingEdu +    // 继续教育
+                housingLoan +             // 住房贷款利息
+                housingRent +             // 住房租金
+                elderSupport +            // 赡养老人
+                monthlyMedicalExpense;    // 大病医疗
+            
+            // 计算各项目的补扣金额
+            const childrenEduBackAmount = childrenEduBack ? childrenEdu * 2000 * childrenEduSelectedMonths.length : 0;
+            const infantCareBackAmount = infantCareBack ? infantCare * 2000 * infantCareSelectedMonths.length : 0;
+            const continuingEduBackAmount = continuingEduBack ? monthlyContinuingEdu * (month - 1) : 0;
+            const housingLoanBackAmount = housingLoanBack ? housingLoan * (month - 1) : 0;
+            const housingRentBackAmount = housingRentBack ? housingRent * (month - 1) : 0;
+            const elderSupportBackAmount = elderSupportBack ? elderSupport * (month - 1) : 0;
+            const medicalExpenseBackAmount = medicalExpenseBack ? monthlyMedicalExpense * (month - 1) : 0;
+            
+            // 计算补扣总额
+            const backDeductionAmount = 
+                childrenEduBackAmount +
+                infantCareBackAmount +
+                continuingEduBackAmount +
+                housingLoanBackAmount +
+                housingRentBackAmount +
+                elderSupportBackAmount +
+                medicalExpenseBackAmount;
+            
+            // 计算累计数据
+            let cumulativeSalary = salary;
+            let cumulativeInsurance = insurance;
+            let cumulativeDeduction = monthlyDeduction; // 当月扣除
+            
+            // 累加之前月份的数据
+            for (let i = 0; i < monthlyCalculations.length; i++) {
+                if (monthlyCalculations[i].month < month) {
+                    cumulativeSalary += monthlyCalculations[i].salary;
+                    cumulativeInsurance += monthlyCalculations[i].insurance;
+                    cumulativeDeduction += monthlyCalculations[i].totalDeduction;
+                }
+            }
+            
+            // 加上补扣金额
+            cumulativeDeduction += backDeductionAmount;
+            
+            // 计算累计应纳税所得额（包含每月5000元基本减除费用）
+            const cumulativeTaxableIncome = cumulativeSalary - (5000 * month) - cumulativeInsurance - cumulativeDeduction;
+            
+            // 计算累计应纳税额
+            let cumulativeTax = 0;
+            let taxRate = 0;
+            let quickDeduction = 0;
+            
+            if (cumulativeTaxableIncome > 0) {
+                for (let i = 0; i < taxRates.length; i++) {
+                    if (cumulativeTaxableIncome > taxRates[i].min && cumulativeTaxableIncome <= taxRates[i].max) {
+                        taxRate = taxRates[i].rate;
+                        quickDeduction = taxRates[i].deduction;
+                        cumulativeTax = cumulativeTaxableIncome * taxRate - quickDeduction;
+                        break;
+                    }
+                }
+            }
+            
+            // 计算累计已缴税额
+            let cumulativePaidTax = 0;
+            for (let i = 0; i < monthlyCalculations.length; i++) {
+                if (monthlyCalculations[i].month < month) {
+                    cumulativePaidTax += monthlyCalculations[i].monthlyTax;
+                }
+            }
+            
+            // 计算本月应纳税额（考虑专项附加扣除申报后的重新计算）
+            let monthlyTax = cumulativeTax - cumulativePaidTax;
+            let backDeductionRefund = 0;
+            
+            // 如果本月应纳税额为负数，说明有退税
+            if (monthlyTax < 0) {
+                backDeductionRefund = Math.abs(monthlyTax);
+                monthlyTax = 0;
+            }
+            
+            // 更新结果
+            const taxAmountElement = document.getElementById('taxAmount');
+            const backDeductionResult = document.getElementById('backDeductionResult');
+            
+            if (backDeductionRefund > 0) {
+                taxAmountElement.textContent = '0.00 元 (因补扣产生退税)';
+                taxAmountElement.className = 'tax-amount tax-refund';
+                backDeductionResult.style.display = 'block';
+                document.getElementById('backDeductionRefund').textContent = backDeductionRefund.toFixed(2) + ' 元';
+            } else {
+                taxAmountElement.textContent = monthlyTax.toFixed(2) + ' 元';
+                taxAmountElement.className = 'tax-amount';
+                backDeductionResult.style.display = 'none';
+            }
+            
+            document.getElementById('cumulativeTaxableIncome').textContent = cumulativeTaxableIncome > 0 ? cumulativeTaxableIncome.toFixed(2) + ' 元' : '0.00 元';
+            document.getElementById('taxRate').textContent = (taxRate * 100).toFixed(0) + '%';
+            document.getElementById('quickDeduction').textContent = quickDeduction.toFixed(0) + ' 元';
+            document.getElementById('cumulativeTax').textContent = cumulativeTax.toFixed(2) + ' 元';
+            document.getElementById('cumulativePaidTax').textContent = cumulativePaidTax.toFixed(2) + ' 元';
+            document.getElementById('monthlyTax').textContent = monthlyTax.toFixed(2) + ' 元';
+            document.getElementById('totalDeduction').textContent = (monthlyDeduction + backDeductionAmount).toFixed(2) + ' 元';
+            
+            // 保存本月计算结果
+            const monthName = month + '月';
+            const existingIndex = monthlyCalculations.findIndex(item => item.month === month);
+            
+            const calculationResult = {
+                month: month,
+                monthName: monthName,
+                salary: salary,
+                insurance: insurance,
+                totalDeduction: monthlyDeduction + backDeductionAmount,
+                cumulativeTaxableIncome: cumulativeTaxableIncome,
+                taxRate: taxRate * 100,
+                quickDeduction: quickDeduction,
+                cumulativeTax: cumulativeTax,
+                cumulativePaidTax: cumulativePaidTax,
+                monthlyTax: monthlyTax,
+                backDeductionRefund: backDeductionRefund
+            };
+            
+            if (existingIndex !== -1) {
+                monthlyCalculations[existingIndex] = calculationResult;
+            } else {
+                monthlyCalculations.push(calculationResult);
+            }
+            
+            // 更新月度结果表格
+            updateMonthlyResultsTable();
+        });
+        
+        function updateMonthlyResultsTable() {
+            const tbody = document.getElementById('monthlyResults');
+            tbody.innerHTML = '';
+            
+            // 按月份排序
+            monthlyCalculations.sort((a, b) => a.month - b.month);
+            
+            // 添加每一行的数据
+            monthlyCalculations.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.monthName}</td>
+                    <td>${item.salary.toFixed(2)}</td>
+                    <td>${item.insurance.toFixed(2)}</td>
+                    <td>${item.totalDeduction.toFixed(2)}</td>
+                    <td>${item.cumulativeTaxableIncome > 0 ? item.cumulativeTaxableIncome.toFixed(2) : '0.00'}</td>
+                    <td>${item.taxRate.toFixed(0)}%</td>
+                    <td>${item.quickDeduction.toFixed(0)}</td>
+                    <td>${item.cumulativeTax.toFixed(2)}</td>
+                    <td>${item.cumulativePaidTax.toFixed(2)}</td>
+                    <td>${item.monthlyTax.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 初始化时更新补扣总额度显示
+        window.onload = function() {
+            initializeMonthSelectors();
+            updateBackDeductionAmount();
+            calculateInsuranceAmount();
+            handleSameBaseChange();
+        };
+    </script>
+</body>
+</html>
